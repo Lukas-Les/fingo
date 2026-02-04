@@ -33,6 +33,7 @@ func main() {
 	// cfg = apiConfig{db: dbQueries, env: os.Getenv("ENV"), jwtSecret: ""}
 
 	mux := http.NewServeMux()
+	mux.HandleFunc("GET /api/v1/health", handlerHealth)
 	srv := &http.Server{
 		Addr:    ":" + port,
 		Handler: mux,
@@ -45,7 +46,7 @@ func main() {
 	fmt.Println("Hello, World!")
 }
 
-func handlerHeathz(w http.ResponseWriter, req *http.Request) {
+func handlerHealth(w http.ResponseWriter, req *http.Request) {
 	w.Header().Add("Content-Type", "text/plain; charset=utf-8")
 	w.WriteHeader(200)
 	w.Write([]byte("OK"))
