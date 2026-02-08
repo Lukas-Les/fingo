@@ -1,17 +1,19 @@
 package main
 
 import (
-	// "database/sql"
+	"database/sql"
 	"fmt"
 	"log"
 	"net/http"
-	// "os"
+	"os"
 
 	"github.com/Lukas-Les/fingo/internal/database"
+	"github.com/joho/godotenv"
+	_ "github.com/lib/pq"
 )
 
 const (
-	port            = "8080"
+	port            = "8000"
 	defaultErrorMsg = "Something bad happened"
 )
 
@@ -22,18 +24,20 @@ type apiConfig struct {
 }
 
 func main() {
+	godotenv.Load()
+	dbURL := os.Getenv("DB_URL")
+	fmt.Println(dbURL)
+	db, err := sql.Open("postgres", dbURL)
+	if err != nil {
+		log.Fatalln("failed to connect to the db")
+	}
 
-	// dbURL := os.Getenv("DB_URL")
-	// db, err := sql.Open("postgres", dbURL)
-	// if err != nil {
-	// 	log.Fatalln("failed to connect to the db")
-	// }
-
-	// dbQueries := database.New(db)
-	// cfg = apiConfig{db: dbQueries, env: os.Getenv("ENV"), jwtSecret: ""}
+	dbQueries := database.New(db)
+	cfg := apiConfig{db: dbQueries, env: os.Getenv("ENV"), jwtSecret: ""}
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("GET /api/v1/health", handlerHealth)
+	mux.HandleFunc("GET /api/v1/live", handlerLive)
+	mux.HandleFunc("GET /api/v1/ready", handlerReady(cfg))
 	srv := &http.Server{
 		Addr:    ":" + port,
 		Handler: mux,
@@ -46,8 +50,16 @@ func main() {
 	fmt.Println("Hello, World!")
 }
 
-func handlerHealth(w http.ResponseWriter, req *http.Request) {
+func handlerLive(w http.ResponseWriter, req *http.Request) {
 	w.Header().Add("Content-Type", "text/plain; charset=utf-8")
 	w.WriteHeader(200)
 	w.Write([]byte("OK"))
+}
+
+func handlerReady(cfg apiConfig) http.HandlerFunc {
+	return func(w http.ResponseWriter, req *http.Request) {
+		w.Header().Add("Content-Type", "text/plain; charset=utf-8")
+		w.WriteHeader(200)
+		w.Write([]byte("OK"))
+	}
 }
