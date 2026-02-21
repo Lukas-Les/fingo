@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/Lukas-Les/fingo/internal/database"
 	"github.com/joho/godotenv"
@@ -48,10 +49,10 @@ func main() {
 		Addr:    ":" + port,
 		Handler: mux,
 	}
-
+	fmt.Printf("server started and serving on: http://localhost:%s/%s\n", port, strings.Split(filepathRoot, "./")[1])
+	fmt.Printf("database url:                  %s\n", dbURL)
 	log.Fatal(srv.ListenAndServe())
 
-	fmt.Println("Hello, World!")
 }
 
 func handlerLive(w http.ResponseWriter, req *http.Request) {
