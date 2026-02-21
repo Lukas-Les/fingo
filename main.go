@@ -25,17 +25,23 @@ type apiConfig struct {
 
 func main() {
 	godotenv.Load()
+
 	dbURL := os.Getenv("DB_URL")
-	fmt.Println(dbURL)
 	db, err := sql.Open("postgres", dbURL)
 	if err != nil {
 		log.Fatalln("failed to connect to the db")
+	}
+	filepathRoot := os.Getenv("FILEPATH_ROOT")
+	if filepathRoot == "" {
+		log.Fatal("FILEPATH_ROOT environment variable is not set")
 	}
 
 	dbQueries := database.New(db)
 	cfg := apiConfig{db: dbQueries, env: os.Getenv("ENV"), jwtSecret: ""}
 
 	mux := http.NewServeMux()
+	appHandler := http.StripPrefix("/app", http.FileServer(http.Dir(filepathRoot)))
+	mux.Handle("/app/", appHandler)
 	mux.HandleFunc("GET /api/v1/live", handlerLive)
 	mux.HandleFunc("GET /api/v1/ready", handlerReady(cfg))
 	srv := &http.Server{
@@ -43,8 +49,6 @@ func main() {
 		Handler: mux,
 	}
 
-	filepathRoot := http.Dir(".")
-	log.Printf("Serving files from %s on port: %s\n", filepathRoot, port)
 	log.Fatal(srv.ListenAndServe())
 
 	fmt.Println("Hello, World!")
