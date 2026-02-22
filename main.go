@@ -44,7 +44,8 @@ func main() {
 	appHandler := http.StripPrefix("/app", http.FileServer(http.Dir(filepathRoot)))
 	mux.Handle("/app/", appHandler)
 	mux.HandleFunc("GET /api/v1/live", handlerLive)
-	mux.HandleFunc("GET /api/v1/ready", handlerReady(cfg))
+	mux.HandleFunc("GET /api/v1/ready", buildHandlerReady(cfg))
+	mux.HandleFunc("POST /api/v1/create-user", BuildUserCreateHandler(cfg))
 	srv := &http.Server{
 		Addr:    ":" + port,
 		Handler: mux,
@@ -61,7 +62,7 @@ func handlerLive(w http.ResponseWriter, req *http.Request) {
 	w.Write([]byte("OK"))
 }
 
-func handlerReady(cfg apiConfig) http.HandlerFunc {
+func buildHandlerReady(cfg apiConfig) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
 		w.Header().Add("Content-Type", "text/plain; charset=utf-8")
 		w.WriteHeader(200)
