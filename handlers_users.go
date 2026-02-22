@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 
@@ -8,7 +9,11 @@ import (
 	"github.com/Lukas-Les/fingo/internal/database"
 )
 
-func BuildUserCreateHandler(cfg apiConfig) func(http.ResponseWriter, *http.Request) {
+type UserCreator interface {
+	CreateUser(ctx context.Context, arg database.CreateUserParams) (database.User, error)
+}
+
+func BuildUserCreateHandler(db UserCreator) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		type parameters struct {
@@ -35,7 +40,7 @@ func BuildUserCreateHandler(cfg apiConfig) func(http.ResponseWriter, *http.Reque
 			return
 		}
 
-		user, err := cfg.db.CreateUser(r.Context(), database.CreateUserParams{
+		user, err := db.CreateUser(r.Context(), database.CreateUserParams{
 			Email:          params.Email,
 			HashedPassword: hashedPassword,
 		})

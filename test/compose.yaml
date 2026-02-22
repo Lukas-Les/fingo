@@ -1,0 +1,9 @@
+services:
+  test-db:
+    image: postgres:18
+    environment:
+      POSTGRES_USER: tuser
+      POSTGRES_PASSWORD: test
+      POSTGRES_DB: fingo_test
+    ports:
+      - "5433:5432"

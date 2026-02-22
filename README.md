@@ -32,3 +32,29 @@ Afterwards, run
 sqlc generate
 ```
 and you new query will be traslated to Go and put at internal/database module.
+
+
+## Tests debuging
+
+You can start debginging session with:
+```shell
+dlv test --headless -l 127.0.0.1:2345
+```
+
+and can use this launch.json:
+```json
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Connect to Remote Server",
+            "type": "go",
+            "request": "attach",
+            "mode": "remote",
+            "port": 2345,
+            "host": "127.0.0.1",
+            "remotePath": "${workspaceFolder}"
+        }
+    ]
+}
+```
