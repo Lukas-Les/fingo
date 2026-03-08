@@ -4,13 +4,19 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
+	"time"
 
 	"github.com/Lukas-Les/fingo/internal/auth"
 	"github.com/Lukas-Les/fingo/internal/database"
+	"github.com/google/uuid"
 )
 
 type UserCreator interface {
 	CreateUser(ctx context.Context, arg database.CreateUserParams) (database.User, error)
+}
+
+type UserGetter interface {
+	GetUserByEmail(ctx context.Context, email string) (database.User, error)
 }
 
 func BuildUserCreateHandler(db UserCreator) func(http.ResponseWriter, *http.Request) {
@@ -55,8 +61,16 @@ func BuildUserCreateHandler(db UserCreator) func(http.ResponseWriter, *http.Requ
 	}
 }
 
-func BuildUserLoginHandler(db database.Queries) func(http.ResponseWriter, *http.Request) {
+func BuildUserLoginHandler(db UserGetter, jwtSecret string) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
+		type response struct {
+			ID           uuid.UUID `json:"id"`
+			CreatedAt    time.Time `json:"created_at"`
+			UpdatedAt    time.Time `json:"updated_at"`
+			Email        string    `json:"email"`
+			Token        string    `json:"token"`
+			RefreshToken string    `json:"refresh_token"`
+		}
 
 		// TODO: move this to a validateCreds middleware
 		type parameters struct {
@@ -76,12 +90,6 @@ func BuildUserLoginHandler(db database.Queries) func(http.ResponseWriter, *http.
 			respondWithError(w, http.StatusBadRequest, "Email and password are required", nil)
 			return
 		}
-
-		hashedPassword, err := auth.HashPassword(params.Password)
-		if err != nil {
-			respondWithError(w, http.StatusInternalServerError, "Couldn't hash password", err)
-			return
-		}
 		// TODO: move this to a validateCreds middleware
 
 		// TODO: move this to a validatePassword milldeware
@@ -90,16 +98,31 @@ func BuildUserLoginHandler(db database.Queries) func(http.ResponseWriter, *http.
 			respondWithError(w, http.StatusUnauthorized, err.Error(), err)
 			return
 		}
-		isValid, err := auth.CheckPasswordHash(user.HashedPassword, hashedPassword)
+		isValid, err := auth.CheckPasswordHash(params.Password, user.HashedPassword)
 		if err != nil {
 			respondWithError(w, http.StatusUnauthorized, err.Error(), err)
 			return
 		}
 		if !isValid {
 			respondWithError(w, http.StatusUnauthorized, "Unauthorized", nil)
+			return
 		}
 		// TODO: move this to a validatePassword milldeware
 
-		// TODO: handle JWT
+		jwtToken, err := auth.MakeJWT(user.ID, jwtSecret, time.Minute)
+		if err != nil {
+			respondWithError(w, http.StatusUnauthorized, err.Error(), err)
+			return
+		}
+
+		resp := response{
+			ID:           user.ID,
+			CreatedAt:    user.CreatedAt,
+			UpdatedAt:    user.UpdatedAt,
+			Email:        user.Email,
+			Token:        jwtToken,
+			RefreshToken: "",
+		}
+		respondWithJSON(w, http.StatusOK, resp)
 	}
 }

@@ -11,12 +11,13 @@ import (
 )
 
 func MakeJWT(userID uuid.UUID, tokenSecret string, expiresIn time.Duration) (string, error) {
+	now := time.Now()
 	token := jwt.NewWithClaims(
 		jwt.SigningMethodHS256,
 		jwt.RegisteredClaims{
 			Issuer:    "fingo",
-			IssuedAt:  jwt.NewNumericDate(time.Now()),
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Minute)),
+			IssuedAt:  jwt.NewNumericDate(now),
+			ExpiresAt: jwt.NewNumericDate(now.Add(expiresIn)),
 			Subject:   userID.String(),
 		},
 	)
