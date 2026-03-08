@@ -36,8 +36,8 @@ func TestMakeJWT(t *testing.T) {
 		t.Fatalf("token claims invalid")
 	}
 
-	if claims.Issuer != "chirpy" {
-		t.Errorf("expected issuer %q, got %q", "chirpy", claims.Issuer)
+	if claims.Issuer != "fingo" {
+		t.Errorf("expected issuer %q, got %q", "fingo", claims.Issuer)
 	}
 	if claims.Subject != userID.String() {
 		t.Errorf("expected subject %q, got %q", userID.String(), claims.Subject)
