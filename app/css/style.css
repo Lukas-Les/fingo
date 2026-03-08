@@ -91,3 +91,76 @@ footer {
     font-size: 0.8rem;
     color: var(--text-muted);
 }
+
+/* --- Form Styles --- */
+
+.logo-link {
+    color: inherit;
+    text-decoration: none;
+}
+
+.auth-container {
+    max-width: 320px;
+    margin: 0 auto;
+    text-align: left; /* Forms are easier to read when left-aligned */
+}
+
+.input-group {
+    margin-bottom: 24px;
+}
+
+.input-group label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 500;
+    margin-bottom: 8px;
+    color: var(--text-main);
+}
+
+.input-group input {
+    width: 100%;
+    padding: 14px 12px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 1rem;
+    color: var(--text-main);
+    background-color: var(--bg-color);
+    transition: border-color 0.2s ease;
+    outline: none;
+}
+
+.input-group input::placeholder {
+    color: #cccccc; /* Very faint placeholder to minimize visual noise */
+}
+
+.input-group input:focus {
+    border-color: var(--accent); /* Uses your black accent for focus state */
+}
+
+/* Button overrides for forms */
+.btn-block {
+    width: 100%;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    text-align: center;
+}
+
+/* Secondary Links */
+.auth-links {
+    margin-top: 32px;
+    text-align: center;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+.auth-links a {
+    color: var(--text-main);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.auth-links a:hover {
+    text-decoration: underline;
+}

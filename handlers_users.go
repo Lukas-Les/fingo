@@ -52,3 +52,7 @@ func BuildUserCreateHandler(db UserCreator) func(http.ResponseWriter, *http.Requ
 		respondWithJSON(w, http.StatusCreated, user)
 	}
 }
+
+// func BuildUserLoginHandler(db UserCreator) func(http.ResponseWriter, *http.Request) {
+//
+// }
