@@ -11,15 +11,12 @@ import (
 	"github.com/google/uuid"
 )
 
-type UserCreator interface {
+type userQueries interface {
 	CreateUser(ctx context.Context, arg database.CreateUserParams) (database.User, error)
-}
-
-type UserGetter interface {
 	GetUserByEmail(ctx context.Context, email string) (database.User, error)
 }
 
-func BuildUserCreateHandler(db UserCreator) func(http.ResponseWriter, *http.Request) {
+func BuildUserCreateHandler(db userQueries) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		// TODO: move this to a validateCreds middleware
@@ -61,7 +58,7 @@ func BuildUserCreateHandler(db UserCreator) func(http.ResponseWriter, *http.Requ
 	}
 }
 
-func BuildUserLoginHandler(db UserGetter, jwtSecret string) func(http.ResponseWriter, *http.Request) {
+func BuildUserLoginHandler(db userQueries, jwtSecret string) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		type response struct {
 			ID           uuid.UUID `json:"id"`
