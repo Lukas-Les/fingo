@@ -3,6 +3,8 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"errors"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -16,29 +18,44 @@ type userQueries interface {
 	GetUserByEmail(ctx context.Context, email string) (database.User, error)
 }
 
+type credentials struct {
+	Password string `json:"password"`
+	Email    string `json:"email"`
+}
+
+func (c credentials) validate() error {
+	if c.Password == "" || c.Email == "" {
+		return errors.New("missing required fields")
+	}
+	return nil
+}
+
+func credentialsFromRequest(r *http.Request) (credentials, error) {
+	var c credentials
+	if err := decodeJsonRequest(&c, r); err != nil {
+		return c, fmt.Errorf("decode credentials: %w", err)
+	}
+	if err := c.validate(); err != nil {
+		return c, err
+	}
+	return c, nil
+}
+
+func decodeJsonRequest[T any](v *T, r *http.Request) error {
+	decoder := json.NewDecoder(r.Body)
+	return decoder.Decode(v)
+}
+
 func BuildUserCreateHandler(db userQueries) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		// TODO: move this to a validateCreds middleware
-		type parameters struct {
-			Password string `json:"password"`
-			Email    string `json:"email"`
-		}
-
-		decoder := json.NewDecoder(r.Body)
-		params := parameters{}
-		err := decoder.Decode(&params)
+		creds, err := credentialsFromRequest(r)
 		if err != nil {
-			respondWithError(w, http.StatusInternalServerError, "Couldn't decode parameters", err)
+			respondWithError(w, http.StatusBadRequest, err.Error(), err)
 			return
 		}
-
-		if params.Password == "" || params.Email == "" {
-			respondWithError(w, http.StatusBadRequest, "Email and password are required", nil)
-			return
-		}
-
-		hashedPassword, err := auth.HashPassword(params.Password)
+		hashedPassword, err := auth.HashPassword(creds.Password)
 		if err != nil {
 			respondWithError(w, http.StatusInternalServerError, "Couldn't hash password", err)
 			return
@@ -46,7 +63,7 @@ func BuildUserCreateHandler(db userQueries) func(http.ResponseWriter, *http.Requ
 		// TODO: move this to a validateCreds middleware
 
 		user, err := db.CreateUser(r.Context(), database.CreateUserParams{
-			Email:          params.Email,
+			Email:          creds.Email,
 			HashedPassword: hashedPassword,
 		})
 		if err != nil {
@@ -70,32 +87,20 @@ func BuildUserLoginHandler(db userQueries, jwtSecret string) func(http.ResponseW
 		}
 
 		// TODO: move this to a validateCreds middleware
-		type parameters struct {
-			Password string `json:"password"`
-			Email    string `json:"email"`
-		}
-
-		decoder := json.NewDecoder(r.Body)
-		params := parameters{}
-		err := decoder.Decode(&params)
+		creds, err := credentialsFromRequest(r)
 		if err != nil {
-			respondWithError(w, http.StatusInternalServerError, "Couldn't decode parameters", err)
-			return
-		}
-
-		if params.Password == "" || params.Email == "" {
-			respondWithError(w, http.StatusBadRequest, "Email and password are required", nil)
+			respondWithError(w, http.StatusBadRequest, err.Error(), err)
 			return
 		}
 		// TODO: move this to a validateCreds middleware
 
 		// TODO: move this to a validatePassword milldeware
-		user, err := db.GetUserByEmail(r.Context(), params.Email)
+		user, err := db.GetUserByEmail(r.Context(), creds.Email)
 		if err != nil {
 			respondWithError(w, http.StatusUnauthorized, err.Error(), err)
 			return
 		}
-		isValid, err := auth.CheckPasswordHash(params.Password, user.HashedPassword)
+		isValid, err := auth.CheckPasswordHash(creds.Password, user.HashedPassword)
 		if err != nil {
 			respondWithError(w, http.StatusUnauthorized, err.Error(), err)
 			return
