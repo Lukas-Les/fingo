@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/Lukas-Les/fingo/internal/database"
+	"github.com/a-h/templ"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 )
@@ -47,6 +48,7 @@ func main() {
 	mux.HandleFunc("GET /api/v1/ready", buildHandlerReady(cfg))
 	mux.HandleFunc("POST /api/v1/create-user", BuildUserCreateHandler(cfg.db))
 	mux.HandleFunc("POST /api/v1/login", BuildUserLoginHandler(cfg.db, cfg.jwtSecret))
+	mux.Handle("GET /api/v1/templ", templ.Handler(hello("fingo")))
 	srv := &http.Server{
 		Addr:    ":" + port,
 		Handler: mux,
