@@ -1,0 +1,35 @@
+package templates
+
+templ Index() {
+	@Layout("Fingo | Personal Finance Tracking") {
+		<main class="container">
+			<header>
+				<h1 class="logo">Fingo</h1>
+				<p class="tagline">Finance tracking, stripped to the essentials.</p>
+			</header>
+			<section class="grid">
+				<div class="card">
+					<h3>Clarity</h3>
+					<p>See exactly where your money goes with zero noise.</p>
+				</div>
+				<div class="card">
+					<h3>Speed</h3>
+					<p>Log a transaction in two taps. No loading screens.</p>
+				</div>
+				<div class="card">
+					<h3>Privacy</h3>
+					<p>No ads. No data selling. Just your numbers.</p>
+				</div>
+			</section>
+			<div class="actions">
+				<a href="/signup" class="btn-primary">Create Account</a>
+				<div class="auth-links">
+					<p>Already a user? <a href="/login">Log in</a></p>
+				</div>
+			</div>
+			<footer>
+				<p>&copy; 2026 Fingo. Minimalist by design.</p>
+			</footer>
+		</main>
+	}
+}

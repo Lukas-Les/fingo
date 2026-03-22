@@ -6,9 +6,9 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"strings"
 
 	"github.com/Lukas-Les/fingo/internal/database"
+	"github.com/Lukas-Les/fingo/templates"
 	"github.com/a-h/templ"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
@@ -33,27 +33,23 @@ func main() {
 	if err != nil {
 		log.Fatalln("failed to connect to the db")
 	}
-	filepathRoot := os.Getenv("FILEPATH_ROOT")
-	if filepathRoot == "" {
-		log.Fatal("FILEPATH_ROOT environment variable is not set")
-	}
-
 	dbQueries := database.New(db)
 	cfg := apiConfig{db: dbQueries, env: os.Getenv("ENV"), jwtSecret: ""}
 
 	mux := http.NewServeMux()
-	appHandler := http.StripPrefix("/app", http.FileServer(http.Dir(filepathRoot)))
-	mux.Handle("/app/", appHandler)
+	mux.Handle("GET /static/", http.StripPrefix("/static", http.FileServer(http.Dir("static"))))
+	mux.Handle("GET /", templ.Handler(templates.Index()))
+	mux.Handle("GET /login", templ.Handler(templates.Login()))
+	mux.Handle("GET /signup", templ.Handler(templates.Signup()))
 	mux.HandleFunc("GET /api/v1/live", handlerLive)
 	mux.HandleFunc("GET /api/v1/ready", buildHandlerReady(cfg))
 	mux.HandleFunc("POST /api/v1/create-user", BuildUserCreateHandler(cfg.db))
 	mux.HandleFunc("POST /api/v1/login", BuildUserLoginHandler(cfg.db, cfg.jwtSecret))
-	mux.Handle("GET /api/v1/templ", templ.Handler(hello("fingo")))
 	srv := &http.Server{
 		Addr:    ":" + port,
 		Handler: mux,
 	}
-	fmt.Printf("server started and serving on: http://localhost:%s/%s\n", port, strings.Split(filepathRoot, "./")[1])
+	fmt.Printf("server started and serving on: http://localhost:%s/\n", port)
 	fmt.Printf("database url:                  %s\n", dbURL)
 	log.Fatal(srv.ListenAndServe())
 

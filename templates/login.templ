@@ -1,0 +1,28 @@
+package templates
+
+templ Login() {
+	@Layout("Log In | Fingo") {
+		<main class="container">
+			<header>
+				<h1 class="logo"><a href="/" class="logo-link">Fingo</a></h1>
+				<p class="tagline">Welcome back.</p>
+			</header>
+			<div class="auth-container">
+				<form action="/api/v1/login" method="POST" class="auth-form">
+					<div class="input-group">
+						<label for="email">Email</label>
+						<input type="email" id="email" name="email" required placeholder="you@example.com"/>
+					</div>
+					<div class="input-group">
+						<label for="password">Password</label>
+						<input type="password" id="password" name="password" required placeholder="••••••••"/>
+					</div>
+					<button type="submit" class="btn-primary btn-block">Log In</button>
+				</form>
+				<div class="auth-links">
+					<p>Don't have an account? <a href="/signup">Create one</a></p>
+				</div>
+			</div>
+		</main>
+	}
+}
