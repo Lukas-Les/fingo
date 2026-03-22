@@ -41,6 +41,7 @@ func main() {
 	mux.Handle("GET /", templ.Handler(templates.Index()))
 	mux.Handle("GET /login", templ.Handler(templates.Login()))
 	mux.Handle("GET /signup", templ.Handler(templates.Signup()))
+	mux.Handle("GET /dashboard", templ.Handler(templates.Dashboard()))
 	mux.HandleFunc("GET /api/v1/live", handlerLive)
 	mux.HandleFunc("GET /api/v1/ready", buildHandlerReady(cfg))
 	mux.HandleFunc("POST /api/v1/create-user", BuildUserCreateHandler(cfg.db))
