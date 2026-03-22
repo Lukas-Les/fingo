@@ -2,15 +2,12 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
-	"fmt"
 	"net/http"
 	"time"
 
 	"github.com/Lukas-Les/fingo/internal/auth"
 	"github.com/Lukas-Les/fingo/internal/database"
-	"github.com/google/uuid"
 )
 
 type userQueries interface {
@@ -31,24 +28,16 @@ func (c credentials) validate() error {
 }
 
 func credentialsFromRequest(r *http.Request) (credentials, error) {
-	var c credentials
-	if err := decodeJsonRequest(&c, r); err != nil {
-		return c, fmt.Errorf("decode credentials: %w", err)
-	}
+	c := credentials{Email: r.FormValue("email"), Password: r.FormValue("password")}
+
 	if err := c.validate(); err != nil {
 		return c, err
 	}
 	return c, nil
 }
 
-func decodeJsonRequest[T any](v *T, r *http.Request) error {
-	decoder := json.NewDecoder(r.Body)
-	return decoder.Decode(v)
-}
-
 func BuildUserCreateHandler(db userQueries) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-
 		// TODO: move this to a validateCreds middleware
 		creds, err := credentialsFromRequest(r)
 		if err != nil {
@@ -62,7 +51,7 @@ func BuildUserCreateHandler(db userQueries) func(http.ResponseWriter, *http.Requ
 		}
 		// TODO: move this to a validateCreds middleware
 
-		user, err := db.CreateUser(r.Context(), database.CreateUserParams{
+		_, err = db.CreateUser(r.Context(), database.CreateUserParams{
 			Email:          creds.Email,
 			HashedPassword: hashedPassword,
 		})
@@ -71,21 +60,12 @@ func BuildUserCreateHandler(db userQueries) func(http.ResponseWriter, *http.Requ
 			return
 		}
 
-		respondWithJSON(w, http.StatusCreated, user)
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
 	}
 }
 
 func BuildUserLoginHandler(db userQueries, jwtSecret string) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		type response struct {
-			ID           uuid.UUID `json:"id"`
-			CreatedAt    time.Time `json:"created_at"`
-			UpdatedAt    time.Time `json:"updated_at"`
-			Email        string    `json:"email"`
-			Token        string    `json:"token"`
-			RefreshToken string    `json:"refresh_token"`
-		}
-
 		// TODO: move this to a validateCreds middleware
 		creds, err := credentialsFromRequest(r)
 		if err != nil {
@@ -116,15 +96,7 @@ func BuildUserLoginHandler(db userQueries, jwtSecret string) func(http.ResponseW
 			respondWithError(w, http.StatusUnauthorized, err.Error(), err)
 			return
 		}
-
-		resp := response{
-			ID:           user.ID,
-			CreatedAt:    user.CreatedAt,
-			UpdatedAt:    user.UpdatedAt,
-			Email:        user.Email,
-			Token:        jwtToken,
-			RefreshToken: "",
-		}
-		respondWithJSON(w, http.StatusOK, resp)
+		http.SetCookie(w, &http.Cookie{Name: "token", Value: jwtToken, Path: "/", HttpOnly: true})
+		http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
 	}
 }
