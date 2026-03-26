@@ -41,9 +41,13 @@ func Dashboard() templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"dashboard-wrapper\"><header class=\"dashboard-header\"><a href=\"/\" class=\"logo logo-link\">Fingo</a><nav class=\"dashboard-nav\"><a href=\"/logout\" class=\"nav-link\">Log out</a></nav></header><main class=\"dashboard-container\"><section class=\"stats-grid\"><div class=\"stat-card\"><p class=\"stat-label\">Balance</p><p class=\"stat-value\">$0.00</p></div><div class=\"stat-card\"><p class=\"stat-label\">Income</p><p class=\"stat-value stat-income\">$0.00</p></div><div class=\"stat-card\"><p class=\"stat-label\">Expenses</p><p class=\"stat-value stat-expense\">$0.00</p></div></section><section class=\"transactions-section\"><div class=\"section-header\"><h2 class=\"section-title\">Transactions</h2><button class=\"btn-primary btn-sm\">+ Add</button></div><div class=\"empty-state\"><p>No transactions yet.</p><p class=\"text-muted\">Add your first income or expense to get started.</p></div></section></main><footer class=\"dashboard-footer\"><p>&copy; 2026 Fingo. Minimalist by design.</p></footer></div>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
 			return nil
 		})
-		templ_7745c5c3_Err = Layout("Dashboard").Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = Layout("Fingo | Dashboard").Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

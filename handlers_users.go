@@ -100,3 +100,8 @@ func BuildUserLoginHandler(db userQueries, jwtSecret string) func(http.ResponseW
 		http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
 	}
 }
+
+func UserLogoutHandler(w http.ResponseWriter, r *http.Request) {
+	http.SetCookie(w, &http.Cookie{Name: "token", Value: "", Path: "/", MaxAge: -1, HttpOnly: true})
+	http.Redirect(w, r, "/", http.StatusSeeOther)
+}

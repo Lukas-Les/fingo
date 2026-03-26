@@ -1,7 +1,43 @@
 package templates
 
 templ Dashboard() {
-    @Layout("Dashboard") {
-        
-    }
+	@Layout("Fingo | Dashboard") {
+		<div class="dashboard-wrapper">
+			<header class="dashboard-header">
+				<a href="/" class="logo logo-link">Fingo</a>
+				<nav class="dashboard-nav">
+					<a href="/api/v1/logout" class="nav-link">Log out</a>
+				</nav>
+			</header>
+			<main class="dashboard-container">
+				<section class="stats-grid">
+					<div class="stat-card">
+						<p class="stat-label">Balance</p>
+						<p class="stat-value">$0.00</p>
+					</div>
+					<div class="stat-card">
+						<p class="stat-label">Income</p>
+						<p class="stat-value stat-income">$0.00</p>
+					</div>
+					<div class="stat-card">
+						<p class="stat-label">Expenses</p>
+						<p class="stat-value stat-expense">$0.00</p>
+					</div>
+				</section>
+				<section class="transactions-section">
+					<div class="section-header">
+						<h2 class="section-title">Transactions</h2>
+						<button class="btn-primary btn-sm">+ Add</button>
+					</div>
+					<div class="empty-state">
+						<p>No transactions yet.</p>
+						<p class="text-muted">Add your first income or expense to get started.</p>
+					</div>
+				</section>
+			</main>
+			<footer class="dashboard-footer">
+				<p>&copy; 2026 Fingo. Minimalist by design.</p>
+			</footer>
+		</div>
+	}
 }
