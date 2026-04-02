@@ -11,61 +11,62 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	decimal "github.com/shopspring/decimal"
 )
 
-type TransactionType string
+type TransactionTypeEnum string
 
 const (
-	TransactionTypeIncome  TransactionType = "income"
-	TransactionTypeExpense TransactionType = "expense"
+	TransactionTypeEnumIncome  TransactionTypeEnum = "income"
+	TransactionTypeEnumExpense TransactionTypeEnum = "expense"
 )
 
-func (e *TransactionType) Scan(src interface{}) error {
+func (e *TransactionTypeEnum) Scan(src interface{}) error {
 	switch s := src.(type) {
 	case []byte:
-		*e = TransactionType(s)
+		*e = TransactionTypeEnum(s)
 	case string:
-		*e = TransactionType(s)
+		*e = TransactionTypeEnum(s)
 	default:
-		return fmt.Errorf("unsupported scan type for TransactionType: %T", src)
+		return fmt.Errorf("unsupported scan type for TransactionTypeEnum: %T", src)
 	}
 	return nil
 }
 
-type NullTransactionType struct {
-	TransactionType TransactionType
-	Valid           bool // Valid is true if TransactionType is not NULL
+type NullTransactionTypeEnum struct {
+	TransactionTypeEnum TransactionTypeEnum
+	Valid               bool // Valid is true if TransactionTypeEnum is not NULL
 }
 
 // Scan implements the Scanner interface.
-func (ns *NullTransactionType) Scan(value interface{}) error {
+func (ns *NullTransactionTypeEnum) Scan(value interface{}) error {
 	if value == nil {
-		ns.TransactionType, ns.Valid = "", false
+		ns.TransactionTypeEnum, ns.Valid = "", false
 		return nil
 	}
 	ns.Valid = true
-	return ns.TransactionType.Scan(value)
+	return ns.TransactionTypeEnum.Scan(value)
 }
 
 // Value implements the driver Valuer interface.
-func (ns NullTransactionType) Value() (driver.Value, error) {
+func (ns NullTransactionTypeEnum) Value() (driver.Value, error) {
 	if !ns.Valid {
 		return nil, nil
 	}
-	return string(ns.TransactionType), nil
+	return string(ns.TransactionTypeEnum), nil
 }
 
 type Transaction struct {
-	ID          uuid.UUID
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
-	UserID      uuid.UUID
-	Amount      string
-	Type        TransactionType
-	Category    sql.NullString
-	Description sql.NullString
-	Party       sql.NullString
-	Date        time.Time
+	ID              uuid.UUID
+	CreatedAt       time.Time
+	UpdatedAt       time.Time
+	UserID          uuid.UUID
+	Amount          decimal.Decimal
+	TransactionType TransactionTypeEnum
+	Category        sql.NullString
+	Description     sql.NullString
+	Party           sql.NullString
+	TransactionDate time.Time
 }
 
 type User struct {

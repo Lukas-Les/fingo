@@ -12,6 +12,7 @@ require (
 )
 
 require (
+	github.com/shopspring/decimal v1.4.0 // indirect
 	golang.org/x/crypto v0.14.0 // indirect
 	golang.org/x/sys v0.34.0 // indirect
 )
