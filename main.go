@@ -45,9 +45,12 @@ func main() {
 
 	mux.HandleFunc("GET /api/v1/live", handlerLive)
 	mux.HandleFunc("GET /api/v1/ready", buildHandlerReady(cfg))
+
 	mux.HandleFunc("POST /api/v1/create-user", BuildUserCreateHandler(cfg.db))
 	mux.HandleFunc("POST /api/v1/login", BuildUserLoginHandler(cfg.db, cfg.jwtSecret))
 	mux.HandleFunc("POST /api/v1/logout", UserLogoutHandler)
+
+	mux.HandleFunc("POST /api/v1/create-transaction", BuildTransactionCreateHandler(cfg.db, cfg.jwtSecret))
 
 	srv := &http.Server{
 		Addr:    ":" + port,

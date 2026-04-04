@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/Lukas-Les/fingo/internal/auth"
 	"github.com/Lukas-Les/fingo/internal/database"
 	"github.com/shopspring/decimal"
 )
@@ -14,8 +15,19 @@ type transactionQueries interface {
 	CreateTransaction(ctx context.Context, arg database.CreateTransactionParams) (database.Transaction, error)
 }
 
-func BuildTransactionCreateHandler(db transactionQueries, user database.User) func(http.ResponseWriter, *http.Request) {
+func BuildTransactionCreateHandler(db transactionQueries, jwtSecret string) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
+		token, err := auth.GetBearerToken(r.Header)
+		if err != nil {
+			http.Error(w, "unauthorized", http.StatusUnauthorized)
+			return
+		}
+		userId, err := auth.ValidateJWT(token, jwtSecret)
+		if err != nil {
+			http.Error(w, "unauthorized", http.StatusUnauthorized)
+			return
+		}
+
 		if err := r.ParseForm(); err != nil {
 			http.Error(w, "invalid form", http.StatusBadRequest)
 			return
@@ -36,9 +48,14 @@ func BuildTransactionCreateHandler(db transactionQueries, user database.User) fu
 		category := r.FormValue("category")
 		description := r.FormValue("description")
 		party := r.FormValue("party")
+		transactionTypeRaw := r.FormValue("transaction_type")
+		if transactionTypeRaw == "" || (transactionTypeRaw != "income" && transactionTypeRaw != "expense") {
+			http.Error(w, "missing transaction_type[income | expense]", http.StatusInternalServerError)
+			return
+		}
 
 		params := database.CreateTransactionParams{
-			UserID:          user.ID,
+			UserID:          userId,
 			Amount:          amount,
 			TransactionType: database.TransactionTypeEnum(r.FormValue("transaction_type")),
 			Category:        sql.NullString{String: category, Valid: category != ""},

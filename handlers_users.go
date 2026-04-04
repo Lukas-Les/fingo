@@ -91,7 +91,7 @@ func BuildUserLoginHandler(db userQueries, jwtSecret string) func(http.ResponseW
 		}
 		// TODO: move this to a validatePassword milldeware
 
-		jwtToken, err := auth.MakeJWT(user.ID, jwtSecret, time.Minute)
+		jwtToken, err := auth.MakeJWT(user.ID, jwtSecret, time.Minute*15)
 		if err != nil {
 			respondWithError(w, http.StatusUnauthorized, err.Error(), err)
 			return
