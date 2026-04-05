@@ -3,9 +3,9 @@ package main
 import (
 	"context"
 	"database/sql"
-	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"os"
 	"strings"
 	"testing"
@@ -32,14 +32,17 @@ func TestBuildUserCreateHandler(t *testing.T) {
 			db.Exec("DELETE FROM users WHERE email = $1", email)
 		})
 
-		userPayload := fmt.Sprintf(`{"email": "%s", "password": "securepassword123"}`, email)
-		req := httptest.NewRequest("POST", "/users", strings.NewReader(userPayload))
+		form := url.Values{}
+		form.Set("email", email)
+		form.Set("password", "pass")
+		req := httptest.NewRequest("POST", "/api/v1/create-user", strings.NewReader(form.Encode()))
+		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 		rr := httptest.NewRecorder()
 
 		handler(rr, req)
 
-		if rr.Code != http.StatusCreated {
-			t.Errorf("expected status 201, got %d", rr.Code)
+		if rr.Code != http.StatusSeeOther {
+			t.Errorf("expected status 303, got %d", rr.Code)
 		}
 
 		user, err := dbQueries.GetUserByEmail(context.Background(), email)
