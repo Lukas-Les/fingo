@@ -30,14 +30,16 @@ func TestTransaction(t *testing.T) {
 
 	dbQueries := database.New(db)
 	createUserHandler := BuildUserCreateHandler(dbQueries)
-	loginHandler := BuildUserLoginHandler(dbQueries, "testing-token")
+	loginHandler := BuildUserLoginHandler(dbQueries, jwtSecret)
 	transactionHandler := BuildTransactionCreateHandler(dbQueries, jwtSecret)
 
-	// create user and login
 	email := "transaction@example.com"
 	password := "pass"
 
 	db.Exec("DELETE FROM users WHERE email = $1", email)
+	t.Cleanup(func() {
+		db.Exec("DELETE FROM users WHERE email = $1", email)
+	})
 
 	form := url.Values{}
 	form.Set("email", email)
@@ -46,9 +48,9 @@ func TestTransaction(t *testing.T) {
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	rr := httptest.NewRecorder()
 	createUserHandler(rr, req)
-	t.Cleanup(func() {
-		db.Exec("DELETE FROM users WHERE email = $1", email)
-	})
+	if rr.Code != http.StatusSeeOther {
+		t.Fatalf("setup: failed to create user, got %d: %s", rr.Code, rr.Body.String())
+	}
 
 	loginForm := url.Values{}
 	loginForm.Set("email", email)
@@ -57,6 +59,10 @@ func TestTransaction(t *testing.T) {
 	loginReq.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	loginRecorder := httptest.NewRecorder()
 	loginHandler(loginRecorder, loginReq)
+	if loginRecorder.Code != http.StatusSeeOther {
+		t.Fatalf("setup: failed to login, got %d: %s", loginRecorder.Code, loginRecorder.Body.String())
+	}
+
 	var bearerToken string
 	for _, cookie := range loginRecorder.Result().Cookies() {
 		if cookie.Name == "token" {
@@ -64,35 +70,64 @@ func TestTransaction(t *testing.T) {
 			break
 		}
 	}
+	if bearerToken == "" {
+		t.Fatal("setup: login did not return a token cookie")
+	}
 
-	t.Run("Should create a new transaction", func(t *testing.T) {
-		createTransactionForm := url.Values{}
-		createTransactionForm.Set("amount", "10")
-		createTransactionForm.Set("transaction_date", "2025-01-01")
-		createTransactionForm.Set("transaction_type", "income")
-		createTransactionForm.Set("category", "test")
-		createTransactionForm.Set("description", "test")
-		createTransactionForm.Set("party", "test")
+	cases := []struct {
+		name         string
+		amount       string
+		date         string
+		transType    string
+		expectedCode int
+	}{
+		{"valid income", "10", "2025-01-01", "income", http.StatusSeeOther},
+		{"valid expense", "50", "2025-01-02", "expense", http.StatusSeeOther},
+		{"invalid amount", "abc", "2025-01-01", "income", http.StatusBadRequest},
+		{"missing amount", "", "2025-01-01", "income", http.StatusBadRequest},
+		{"invalid date", "10", "01-01-2025", "income", http.StatusBadRequest},
+		{"missing date", "10", "", "income", http.StatusBadRequest},
+		{"invalid type", "10", "2025-01-01", "bad", http.StatusInternalServerError},
+		{"missing type", "10", "2025-01-01", "", http.StatusInternalServerError},
+	}
 
-		createTransactionReq := httptest.NewRequest("POST", "/api/v1/create-transaction", strings.NewReader(createTransactionForm.Encode()))
-		createTransactionReq.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-		createTransactionReq.Header.Set("Authorization", "Bearer "+bearerToken)
-		ctRecorder := httptest.NewRecorder()
-		transactionHandler(ctRecorder, createTransactionReq)
-		t.Cleanup(func() {
-			db.Exec("DELETE FROM transactions WHERE category = $1", "test")
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Cleanup(func() {
+				db.Exec("DELETE FROM transactions WHERE category = $1", "test")
+			})
+
+			f := url.Values{}
+			f.Set("amount", tc.amount)
+			f.Set("transaction_date", tc.date)
+			f.Set("transaction_type", tc.transType)
+			f.Set("category", "test")
+			f.Set("description", "test")
+			f.Set("party", "test")
+
+			r := httptest.NewRequest("POST", "/api/v1/create-transaction", strings.NewReader(f.Encode()))
+			r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+			r.Header.Set("Authorization", "Bearer "+bearerToken)
+			w := httptest.NewRecorder()
+			transactionHandler(w, r)
+
+			if w.Code != tc.expectedCode {
+				t.Errorf("expected %d, got %d: %s", tc.expectedCode, w.Code, w.Body.String())
+			}
+
+			if tc.expectedCode == http.StatusSeeOther {
+				var count int
+				err := db.QueryRow(
+					"SELECT COUNT(*) FROM transactions WHERE amount = $1 AND category = $2",
+					tc.amount, "test",
+				).Scan(&count)
+				if err != nil {
+					t.Fatalf("db query failed: %v", err)
+				}
+				if count != 1 {
+					t.Errorf("expected 1 transaction in db, got %d", count)
+				}
+			}
 		})
-
-		if ctRecorder.Code != http.StatusSeeOther {
-			t.Errorf("expected 303, got %d: %s", ctRecorder.Code, ctRecorder.Body.String())
-		}
-		var count int
-		err := db.QueryRow("SELECT COUNT(*) FROM transactions WHERE amount = $1 AND category = $2", "10", "test").Scan(&count)
-		if err != nil {
-			t.Fatalf("db query failed: %v", err)
-		}
-		if count != 1 {
-			t.Errorf("expected 1 transaction in db, got %d", count)
-		}
-	})
+	}
 }
