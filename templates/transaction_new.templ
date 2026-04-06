@@ -37,7 +37,10 @@ templ NewTransaction(csrfToken string) {
 						<label for="party">Party</label>
 						<input type="text" id="party" name="party"/>
 					</div>
-					<button type="submit" class="btn-primary btn-block">Create</button>
+					<div style="display: flex; gap: 0.5rem;">
+						<button type="submit" class="btn-primary btn-block">Create</button>
+						<a href="/dashboard" class="btn-cancel btn-block">Back</a>
+					</div>
 				</form>
 			</div>
 		</main>
