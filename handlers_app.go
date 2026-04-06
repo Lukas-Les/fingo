@@ -26,6 +26,11 @@ func BuildDashboardHandler(db *database.Queries, jwtSecret string) func(http.Res
 			http.Error(w, "no such user", http.StatusUnauthorized)
 			return
 		}
-		templates.Dashboard(csrf.Token(r), dbUser.Email).Render(r.Context(), w)
+		balance, err := db.GetUserBalanceAsStr(r.Context(), userId)
+		if err != nil {
+			http.Error(w, "failed to fetch balance", http.StatusUnauthorized)
+			return
+		}
+		templates.Dashboard(csrf.Token(r), dbUser.Email, balance).Render(r.Context(), w)
 	}
 }

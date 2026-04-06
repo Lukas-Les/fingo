@@ -1,6 +1,6 @@
 package templates
 
-templ Dashboard(csrfToken, email string) {
+templ Dashboard(csrfToken, email, balance string) {
 	@Layout("Fingo | Dashboard") {
 		<div class="dashboard-wrapper">
 			<header class="dashboard-header">
@@ -14,15 +14,15 @@ templ Dashboard(csrfToken, email string) {
 				<section class="stats-grid">
 					<div class="stat-card">
 						<p class="stat-label">Balance</p>
-						<p class="stat-value">$0.00</p>
+						<p class="stat-value">{ balance } €</p>
 					</div>
 					<div class="stat-card">
 						<p class="stat-label">Income</p>
-						<p class="stat-value stat-income">$0.00</p>
+						<p class="stat-value stat-income">0.00 €</p>
 					</div>
 					<div class="stat-card">
 						<p class="stat-label">Expenses</p>
-						<p class="stat-value stat-expense">$0.00</p>
+						<p class="stat-value stat-expense">€0.00 €</p>
 					</div>
 				</section>
 				<section class="transactions-section">
