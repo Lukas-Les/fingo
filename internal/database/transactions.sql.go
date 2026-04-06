@@ -28,7 +28,7 @@ VALUES (
     $6,
     $7
 )
-RETURNING id, created_at, updated_at, user_id, amount, transaction_type, category, description, party, transaction_date
+RETURNING id, created_at, updated_at, user_id, amount, transaction_type, category, description, party, transaction_date, deleted_at
 `
 
 type CreateTransactionParams struct {
@@ -63,6 +63,7 @@ func (q *Queries) CreateTransaction(ctx context.Context, arg CreateTransactionPa
 		&i.Description,
 		&i.Party,
 		&i.TransactionDate,
+		&i.DeletedAt,
 	)
 	return i, err
 }

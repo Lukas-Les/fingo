@@ -67,6 +67,7 @@ type Transaction struct {
 	Description     sql.NullString
 	Party           sql.NullString
 	TransactionDate time.Time
+	DeletedAt       sql.NullTime
 }
 
 type User struct {
