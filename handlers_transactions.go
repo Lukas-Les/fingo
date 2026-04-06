@@ -19,8 +19,11 @@ func BuildTransactionCreateHandler(db transactionQueries, jwtSecret string) func
 	return func(w http.ResponseWriter, r *http.Request) {
 		token, err := auth.GetBearerToken(r.Header)
 		if err != nil {
-			http.Error(w, "unauthorized", http.StatusUnauthorized)
-			return
+			token, err = auth.GetTokenFromCookie(r)
+			if err != nil {
+				http.Error(w, "unauthorized", http.StatusUnauthorized)
+				return
+			}
 		}
 		userId, err := auth.ValidateJWT(token, jwtSecret)
 		if err != nil {

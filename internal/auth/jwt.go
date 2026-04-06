@@ -45,3 +45,11 @@ func GetBearerToken(headers http.Header) (string, error) {
 	}
 	return strings.Replace(h, "Bearer ", "", 1), nil
 }
+
+func GetTokenFromCookie(r *http.Request) (string, error) {
+	cookie, err := r.Cookie("token")
+	if err != nil {
+		return "", errors.New("token cookie not found")
+	}
+	return cookie.Value, nil
+}

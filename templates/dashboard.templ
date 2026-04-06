@@ -1,6 +1,6 @@
 package templates
 
-templ Dashboard() {
+templ Dashboard(csrfToken string) {
 	@Layout("Fingo | Dashboard") {
 		<div class="dashboard-wrapper">
 			<header class="dashboard-header">
@@ -27,7 +27,7 @@ templ Dashboard() {
 				<section class="transactions-section">
 					<div class="section-header">
 						<h2 class="section-title">Transactions</h2>
-						<button class="btn-primary btn-sm">+ Add</button>
+						<a class="btn-primary btn-sm" href="/transaction/new">+ Add</a>
 					</div>
 					<div class="empty-state">
 						<p>No transactions yet.</p>

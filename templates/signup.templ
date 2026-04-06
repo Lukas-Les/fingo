@@ -1,6 +1,6 @@
 package templates
 
-templ Signup() {
+templ Signup(csrfToken string) {
 	@Layout("Create Account | Fingo") {
 		<main class="container">
 			<header>
@@ -9,6 +9,7 @@ templ Signup() {
 			</header>
 			<div class="auth-container">
 				<form action="/api/v1/create-user" method="POST" class="auth-form">
+					<input type="hidden" name="gorilla.csrf.Token" value={ csrfToken }/>
 					<div class="input-group">
 						<label for="name">First Name</label>
 						<input type="text" id="name" name="name" required placeholder="Jane"/>

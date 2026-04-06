@@ -8,7 +8,7 @@ package templates
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
-func Login(csrfToken string) templ.Component {
+func NewTransaction(csrfToken string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -41,26 +41,26 @@ func Login(csrfToken string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<main class=\"container\"><header><h1 class=\"logo\"><a href=\"/\" class=\"logo-link\">Fingo</a></h1><p class=\"tagline\">Welcome back.</p></header><div class=\"auth-container\"><form action=\"/api/v1/login\" method=\"POST\" class=\"auth-form\"><input type=\"hidden\" name=\"gorilla.csrf.Token\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<main class=\"container\"><header><h1 class=\"logo\"><a href=\"/\" class=\"logo-link\">Fingo</a></h1></header><div class=\"default-container\"><form action=\"/api/v1/create-transaction\" method=\"POST\" class=\"new-transaction-form\"><input type=\"hidden\" name=\"gorilla.csrf.Token\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(csrfToken)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/login.templ`, Line: 12, Col: 69}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/transaction_new.templ`, Line: 11, Col: 69}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\"><div class=\"input-group\"><label for=\"email\">Email</label> <input type=\"email\" id=\"email\" name=\"email\" required placeholder=\"you@example.com\"></div><div class=\"input-group\"><label for=\"password\">Password</label> <input type=\"password\" id=\"password\" name=\"password\" required placeholder=\"••••••••\"></div><button type=\"submit\" class=\"btn-primary btn-block\">Log In</button></form><div class=\"auth-links\"><p>Don't have an account? <a href=\"/signup\">Create one</a></p></div></div></main>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\"><div class=\"input-group\"><label for=\"amount\">Amount</label> <input type=\"number\" id=\"amount\" name=\"amount\" required></div><div class=\"input-group\"><label for=\"transaction_date\">Date of transaction</label> <input type=\"date\" id=\"transaction_date\" name=\"transaction_date\" required></div><div class=\"input-group\"><label for=\"transaction_type\">Type of transaction</label> <select id=\"transaction_type\" name=\"transaction_type\" required><option value=\"\">-- select --</option> <option value=\"income\">Income</option> <option value=\"expense\">Expense</option></select></div><div class=\"input-group\"><label for=\"category\">Category</label> <input type=\"text\" id=\"category\" name=\"category\" placeholder=\"e.g. groceries\"></div><div class=\"input-group\"><label for=\"description\">Description</label> <input type=\"text\" id=\"description\" name=\"description\" placeholder=\"e.g. some notes\"></div><div class=\"input-group\"><label for=\"party\">Party</label> <input type=\"text\" id=\"party\" name=\"party\"></div><button type=\"submit\" class=\"btn-primary btn-block\">Create</button></form></div></main>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = Layout("Log In | Fingo").Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = Layout("Create a Transaction").Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

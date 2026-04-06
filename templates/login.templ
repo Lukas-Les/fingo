@@ -1,6 +1,6 @@
 package templates
 
-templ Login() {
+templ Login(csrfToken string) {
 	@Layout("Log In | Fingo") {
 		<main class="container">
 			<header>
@@ -9,6 +9,7 @@ templ Login() {
 			</header>
 			<div class="auth-container">
 				<form action="/api/v1/login" method="POST" class="auth-form">
+					<input type="hidden" name="gorilla.csrf.Token" value={ csrfToken }/>
 					<div class="input-group">
 						<label for="email">Email</label>
 						<input type="email" id="email" name="email" required placeholder="you@example.com"/>

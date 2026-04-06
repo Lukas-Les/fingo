@@ -12,6 +12,8 @@ import (
 	"github.com/a-h/templ"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
+
+	"github.com/gorilla/csrf"
 )
 
 const (
@@ -39,9 +41,19 @@ func main() {
 	mux := http.NewServeMux()
 	mux.Handle("GET /static/", http.StripPrefix("/static", http.FileServer(http.Dir("static"))))
 	mux.Handle("GET /", templ.Handler(templates.Index()))
-	mux.Handle("GET /login", templ.Handler(templates.Login()))
-	mux.Handle("GET /signup", templ.Handler(templates.Signup()))
-	mux.Handle("GET /dashboard", templ.Handler(templates.Dashboard()))
+	mux.HandleFunc("GET /login", func(w http.ResponseWriter, r *http.Request) {
+		templates.Login(csrf.Token(r)).Render(r.Context(), w)
+	})
+
+	mux.HandleFunc("GET /signup", func(w http.ResponseWriter, r *http.Request) {
+		templates.Signup(csrf.Token(r)).Render(r.Context(), w)
+	})
+	mux.HandleFunc("GET /dashboard", func(w http.ResponseWriter, r *http.Request) {
+		templates.Dashboard(csrf.Token(r)).Render(r.Context(), w)
+	})
+	mux.HandleFunc("GET /transaction/new", func(w http.ResponseWriter, r *http.Request) {
+		templates.NewTransaction(csrf.Token(r)).Render(r.Context(), w)
+	})
 
 	mux.HandleFunc("GET /api/v1/live", handlerLive)
 	mux.HandleFunc("GET /api/v1/ready", buildHandlerReady(cfg))
@@ -52,13 +64,10 @@ func main() {
 
 	mux.HandleFunc("POST /api/v1/create-transaction", BuildTransactionCreateHandler(cfg.db, cfg.jwtSecret))
 
-	srv := &http.Server{
-		Addr:    ":" + port,
-		Handler: mux,
-	}
 	fmt.Printf("server started and serving on: http://localhost:%s/\n", port)
 	fmt.Printf("database url:                  %s\n", dbURL)
-	log.Fatal(srv.ListenAndServe())
+	csrfMiddleware := csrf.Protect([]byte(os.Getenv("CSRF_SECRET")), csrf.Secure(false), csrf.TrustedOrigins([]string{"localhost:" + port}))
+	log.Fatal(http.ListenAndServe(":"+port, csrfMiddleware(mux)))
 
 }
 
