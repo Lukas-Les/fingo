@@ -13,6 +13,10 @@ RETURNING *;
 SELECT * FROM users
 WHERE email = $1;
 
+-- name: GetUser :one
+SELECT * FROM users
+WHERE id = $1;
+
 -- name: UpdateUser :one
 UPDATE users
 SET email = $1,

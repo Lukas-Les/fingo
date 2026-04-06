@@ -48,9 +48,8 @@ func main() {
 	mux.HandleFunc("GET /signup", func(w http.ResponseWriter, r *http.Request) {
 		templates.Signup(csrf.Token(r)).Render(r.Context(), w)
 	})
-	mux.HandleFunc("GET /dashboard", func(w http.ResponseWriter, r *http.Request) {
-		templates.Dashboard(csrf.Token(r)).Render(r.Context(), w)
-	})
+	mux.HandleFunc("GET /dashboard", BuildDashboardHandler(dbQueries, cfg.jwtSecret))
+
 	mux.HandleFunc("GET /transaction/new", func(w http.ResponseWriter, r *http.Request) {
 		templates.NewTransaction(csrf.Token(r)).Render(r.Context(), w)
 	})

@@ -1,10 +1,11 @@
 package templates
 
-templ Dashboard(csrfToken string) {
+templ Dashboard(csrfToken, email string) {
 	@Layout("Fingo | Dashboard") {
 		<div class="dashboard-wrapper">
 			<header class="dashboard-header">
 				<a href="/" class="logo logo-link">Fingo</a>
+				<p>{ email }</p>
 				<nav class="dashboard-nav">
 					<a href="/api/v1/logout" class="nav-link">Log out</a>
 				</nav>

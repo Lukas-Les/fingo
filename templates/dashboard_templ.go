@@ -8,7 +8,7 @@ package templates
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
-func Dashboard(csrfToken string) templ.Component {
+func Dashboard(csrfToken, email string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -41,7 +41,20 @@ func Dashboard(csrfToken string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"dashboard-wrapper\"><header class=\"dashboard-header\"><a href=\"/\" class=\"logo logo-link\">Fingo</a><nav class=\"dashboard-nav\"><a href=\"/api/v1/logout\" class=\"nav-link\">Log out</a></nav></header><main class=\"dashboard-container\"><section class=\"stats-grid\"><div class=\"stat-card\"><p class=\"stat-label\">Balance</p><p class=\"stat-value\">$0.00</p></div><div class=\"stat-card\"><p class=\"stat-label\">Income</p><p class=\"stat-value stat-income\">$0.00</p></div><div class=\"stat-card\"><p class=\"stat-label\">Expenses</p><p class=\"stat-value stat-expense\">$0.00</p></div></section><section class=\"transactions-section\"><div class=\"section-header\"><h2 class=\"section-title\">Transactions</h2><a class=\"btn-primary btn-sm\" href=\"/transaction/new\">+ Add</a></div><div class=\"empty-state\"><p>No transactions yet.</p><p class=\"text-muted\">Add your first income or expense to get started.</p></div></section></main><footer class=\"dashboard-footer\"><p>&copy; 2026 Fingo. Minimalist by design.</p></footer></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"dashboard-wrapper\"><header class=\"dashboard-header\"><a href=\"/\" class=\"logo logo-link\">Fingo</a><p>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var3 string
+			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(email)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/dashboard.templ`, Line: 8, Col: 14}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</p><nav class=\"dashboard-nav\"><a href=\"/api/v1/logout\" class=\"nav-link\">Log out</a></nav></header><main class=\"dashboard-container\"><section class=\"stats-grid\"><div class=\"stat-card\"><p class=\"stat-label\">Balance</p><p class=\"stat-value\">$0.00</p></div><div class=\"stat-card\"><p class=\"stat-label\">Income</p><p class=\"stat-value stat-income\">$0.00</p></div><div class=\"stat-card\"><p class=\"stat-label\">Expenses</p><p class=\"stat-value stat-expense\">$0.00</p></div></section><section class=\"transactions-section\"><div class=\"section-header\"><h2 class=\"section-title\">Transactions</h2><a class=\"btn-primary btn-sm\" href=\"/transaction/new\">+ Add</a></div><div class=\"empty-state\"><p>No transactions yet.</p><p class=\"text-muted\">Add your first income or expense to get started.</p></div></section></main><footer class=\"dashboard-footer\"><p>&copy; 2026 Fingo. Minimalist by design.</p></footer></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
