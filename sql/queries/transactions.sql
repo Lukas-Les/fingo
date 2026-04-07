@@ -13,3 +13,6 @@ VALUES (
     $7
 )
 RETURNING *;
+
+-- name: GetUserTransactions :many
+SELECT * FROM transactions WHERE user_id = $1;

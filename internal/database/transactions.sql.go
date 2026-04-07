@@ -67,3 +67,42 @@ func (q *Queries) CreateTransaction(ctx context.Context, arg CreateTransactionPa
 	)
 	return i, err
 }
+
+const getUserTransactions = `-- name: GetUserTransactions :many
+SELECT id, created_at, updated_at, user_id, amount, transaction_type, category, description, party, transaction_date, deleted_at FROM transactions WHERE user_id = $1
+`
+
+func (q *Queries) GetUserTransactions(ctx context.Context, userID uuid.UUID) ([]Transaction, error) {
+	rows, err := q.db.QueryContext(ctx, getUserTransactions, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Transaction
+	for rows.Next() {
+		var i Transaction
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.UserID,
+			&i.Amount,
+			&i.TransactionType,
+			&i.Category,
+			&i.Description,
+			&i.Party,
+			&i.TransactionDate,
+			&i.DeletedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
