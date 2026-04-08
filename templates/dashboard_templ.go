@@ -69,7 +69,50 @@ func Dashboard(csrfToken, email, balance string, transactions []database.Transac
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, " €</p></div><div class=\"stat-card\"><p class=\"stat-label\">Income</p><p class=\"stat-value stat-income\">0.00 €</p></div><div class=\"stat-card\"><p class=\"stat-label\">Expenses</p><p class=\"stat-value stat-expense\">€0.00 €</p></div></section><section class=\"transactions-section\"><div class=\"section-header\"><h2 class=\"section-title\">Transactions</h2><a class=\"btn-primary btn-sm\" href=\"/transaction/new\">+ Add</a></div><div class=\"empty-state\"><p>No transactions yet.</p><p class=\"text-muted\">Add your first income or expense to get started.</p></div></section></main><footer class=\"dashboard-footer\"><p>&copy; 2026 Fingo. Minimalist by design.</p></footer></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, " €</p></div></section><section class=\"stats-grid\"><div class=\"month-tile\"><p class=\"stat-label\">This month</p><section class=\"stats-grid\"><div class=\"stat-card\"><p class=\"stat-label\">Income</p><p class=\"stat-value stat-income\">0.00 €</p></div><div class=\"stat-card\"><p class=\"stat-label\">Expenses</p><p class=\"stat-value stat-expense\">€0.00 €</p></div></section><section class=\"transactions-section\"><div class=\"section-header\"><h2 class=\"section-title\">Transactions</h2><a class=\"btn-primary btn-sm\" href=\"/transaction/new\">+ Add</a></div>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			if len(transactions) == 0 {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<div class=\"empty-state\"><p>No transactions yet.</p><p class=\"text-muted\">Add your first income or expense to get started.</p></div>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			} else {
+				for _, transaction := range transactions {
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<div class=\"list-item\"><p>Amount:</p><p>")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var5 string
+					templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(transaction.Amount.String())
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/dashboard.templ`, Line: 49, Col: 42}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</p><p>Type:</p><p>")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var6 string
+					templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(string(transaction.TransactionType))
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/dashboard.templ`, Line: 51, Col: 50}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</p></div>")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+				}
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</section></div></section></main><footer class=\"dashboard-footer\"><p>&copy; 2026 Fingo. Minimalist by design.</p></footer></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

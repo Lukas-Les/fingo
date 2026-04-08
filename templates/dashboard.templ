@@ -18,23 +18,41 @@ templ Dashboard(csrfToken, email, balance string, transactions []database.Transa
 						<p class="stat-label">Balance</p>
 						<p class="stat-value">{ balance } €</p>
 					</div>
-					<div class="stat-card">
-						<p class="stat-label">Income</p>
-						<p class="stat-value stat-income">0.00 €</p>
-					</div>
-					<div class="stat-card">
-						<p class="stat-label">Expenses</p>
-						<p class="stat-value stat-expense">€0.00 €</p>
-					</div>
 				</section>
-				<section class="transactions-section">
-					<div class="section-header">
-						<h2 class="section-title">Transactions</h2>
-						<a class="btn-primary btn-sm" href="/transaction/new">+ Add</a>
-					</div>
-					<div class="empty-state">
-						<p>No transactions yet.</p>
-						<p class="text-muted">Add your first income or expense to get started.</p>
+				<section class="stats-grid">
+					<div class="month-tile">
+						<p class="stat-label">This month</p>
+						<section class="stats-grid">
+							<div class="stat-card">
+								<p class="stat-label">Income</p>
+								<p class="stat-value stat-income">0.00 €</p>
+							</div>
+							<div class="stat-card">
+								<p class="stat-label">Expenses</p>
+								<p class="stat-value stat-expense">€0.00 €</p>
+							</div>
+						</section>
+						<section class="transactions-section">
+							<div class="section-header">
+								<h2 class="section-title">Transactions</h2>
+								<a class="btn-primary btn-sm" href="/transaction/new">+ Add</a>
+							</div>
+							if len(transactions) == 0 {
+								<div class="empty-state">
+									<p>No transactions yet.</p>
+									<p class="text-muted">Add your first income or expense to get started.</p>
+								</div>
+							} else {
+								for _, transaction := range transactions {
+									<div class="list-item">
+										<p>Amount:</p>
+										<p>{ transaction.Amount.String() }</p>
+										<p>Type:</p>
+										<p>{ string(transaction.TransactionType) }</p>
+									</div>
+								}
+							}
+						</section>
 					</div>
 				</section>
 			</main>
