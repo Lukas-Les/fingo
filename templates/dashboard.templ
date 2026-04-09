@@ -2,6 +2,13 @@ package templates
 
 import "github.com/Lukas-Les/fingo/internal/database"
 
+func transactionClass(t database.TransactionTypeEnum) string {
+	if t == database.TransactionTypeEnumIncome {
+		return "stat-value stat-income"
+	}
+	return "stat-value stat-expense"
+}
+
 templ Dashboard(csrfToken, email, balance string, transactions []database.Transaction) {
 	@Layout("Fingo | Dashboard") {
 		<div class="dashboard-wrapper">
@@ -44,11 +51,11 @@ templ Dashboard(csrfToken, email, balance string, transactions []database.Transa
 								</div>
 							} else {
 								for _, transaction := range transactions {
-									<div class="list-item">
-										<p>Amount:</p>
-										<p>{ transaction.Amount.String() }</p>
-										<p>Type:</p>
-										<p>{ string(transaction.TransactionType) }</p>
+									<div class="stat-card">
+										<p class="stat-label">Amount</p>
+										<p class={ transactionClass(transaction.TransactionType) }>{ transaction.Amount.String() } €</p>
+										<p class="stat-label">Type</p>
+										<p class={ transactionClass(transaction.TransactionType) }>{ string(transaction.TransactionType) }</p>
 									</div>
 								}
 							}
