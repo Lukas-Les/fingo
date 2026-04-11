@@ -56,6 +56,11 @@ templ Dashboard(csrfToken, email, balance, sumIncome, sumExpense string, transac
 										<p class={ transactionClass(transaction.TransactionType) }>{ transaction.Amount.String() } €</p>
 										<p class="stat-label">Type</p>
 										<p class={ transactionClass(transaction.TransactionType) }>{ string(transaction.TransactionType) }</p>
+										<form class="btn-primary btn-sm" action="/api/v1/delete-transaction" method="POST">
+											<input type="hidden" name="gorilla.csrf.Token" value={ csrfToken }/>
+											<input type="hidden" name="id" value={ transaction.ID.String() }/>
+											<button type="submit" class="btn-primary btn-block">- Delete</button>
+										</form>
 									</div>
 								}
 							}

@@ -62,6 +62,7 @@ func main() {
 	mux.HandleFunc("POST /api/v1/logout", UserLogoutHandler)
 
 	mux.HandleFunc("POST /api/v1/create-transaction", BuildTransactionCreateHandler(cfg.db, cfg.jwtSecret))
+	mux.HandleFunc("POST /api/v1/delete-transaction", BuildTransactionDeleteHandler(cfg.db, cfg.jwtSecret))
 
 	fmt.Printf("server started and serving on: http://localhost:%s/\n", port)
 	fmt.Printf("database url:                  %s\n", dbURL)

@@ -14,8 +14,14 @@ VALUES (
 )
 RETURNING *;
 
+-- name: DeleteTransaction :one
+UPDATE transactions 
+SET deleted_at = CURRENT_TIMESTAMP
+WHERE user_id = $1 AND id = $2
+RETURNING *;
+
 -- name: GetUserTransactions :many
-SELECT * FROM transactions WHERE user_id = $1;
+SELECT * FROM transactions WHERE user_id = $1 AND deleted_at IS NULL;
 
 -- name: GetUserTransactionsForPeriod :many
-SELECT * FROM transactions WHERE user_id = $1 and transaction_date <= $2 and transaction_date >= $3;
+SELECT * FROM transactions WHERE user_id = $1 AND deleted_at IS NULL and transaction_date <= $2 and transaction_date >= $3;

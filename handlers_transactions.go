@@ -3,16 +3,19 @@ package main
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"net/http"
 	"time"
 
 	"github.com/Lukas-Les/fingo/internal/auth"
 	"github.com/Lukas-Les/fingo/internal/database"
+	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 )
 
 type transactionQueries interface {
 	CreateTransaction(ctx context.Context, arg database.CreateTransactionParams) (database.Transaction, error)
+	DeleteTransaction(ctx context.Context, arg database.DeleteTransactionParams) (database.Transaction, error)
 }
 
 func BuildTransactionCreateHandler(db transactionQueries, jwtSecret string) func(http.ResponseWriter, *http.Request) {
@@ -73,6 +76,48 @@ func BuildTransactionCreateHandler(db transactionQueries, jwtSecret string) func
 			return
 		}
 
+		http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
+	}
+}
+
+func BuildTransactionDeleteHandler(db transactionQueries, jwtSecret string) func(http.ResponseWriter, *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		token, err := auth.GetBearerToken(r.Header)
+		if err != nil {
+			token, err = auth.GetTokenFromCookie(r)
+			if err != nil {
+				http.Error(w, "unauthorized", http.StatusUnauthorized)
+				return
+			}
+		}
+		userId, err := auth.ValidateJWT(token, jwtSecret)
+		if err != nil {
+			http.Error(w, "unauthorized", http.StatusUnauthorized)
+			return
+		}
+
+		if err := r.ParseForm(); err != nil {
+			http.Error(w, "invalid form", http.StatusBadRequest)
+			return
+		}
+
+		transactionId, err := uuid.Parse(r.FormValue("id"))
+		if err != nil {
+			http.Error(w, "id not valid", http.StatusBadRequest)
+			return
+		}
+		params := database.DeleteTransactionParams{
+			UserID: userId,
+			ID:     transactionId,
+		}
+		_, err = db.DeleteTransaction(r.Context(), params)
+		if errors.Is(err, sql.ErrNoRows) {
+			http.Error(w, "transaction not found", http.StatusNotFound)
+			return
+		} else if err != nil {
+			http.Error(w, "failed to delete transaction", http.StatusInternalServerError)
+			return
+		}
 		http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
 	}
 }

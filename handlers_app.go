@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/Lukas-Les/fingo/internal/auth"
@@ -49,7 +48,6 @@ func BuildDashboardHandler(db *database.Queries, jwtSecret string) func(http.Res
 				sumExpense = sumExpense.Add(trx.Amount)
 			}
 		}
-		fmt.Printf("sum income %s; sum expense %s", sumIncome.String(), sumExpense.String())
 		templates.Dashboard(csrf.Token(r), dbUser.Email, balance, sumIncome.String(), sumExpense.String(), userTransactions).Render(r.Context(), w)
 	}
 }

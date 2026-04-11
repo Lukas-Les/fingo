@@ -68,8 +68,39 @@ func (q *Queries) CreateTransaction(ctx context.Context, arg CreateTransactionPa
 	return i, err
 }
 
+const deleteTransaction = `-- name: DeleteTransaction :one
+UPDATE transactions 
+SET deleted_at = CURRENT_TIMESTAMP
+WHERE user_id = $1 AND id = $2
+RETURNING id, created_at, updated_at, user_id, amount, transaction_type, category, description, party, transaction_date, deleted_at
+`
+
+type DeleteTransactionParams struct {
+	UserID uuid.UUID
+	ID     uuid.UUID
+}
+
+func (q *Queries) DeleteTransaction(ctx context.Context, arg DeleteTransactionParams) (Transaction, error) {
+	row := q.db.QueryRowContext(ctx, deleteTransaction, arg.UserID, arg.ID)
+	var i Transaction
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.UserID,
+		&i.Amount,
+		&i.TransactionType,
+		&i.Category,
+		&i.Description,
+		&i.Party,
+		&i.TransactionDate,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
 const getUserTransactions = `-- name: GetUserTransactions :many
-SELECT id, created_at, updated_at, user_id, amount, transaction_type, category, description, party, transaction_date, deleted_at FROM transactions WHERE user_id = $1
+SELECT id, created_at, updated_at, user_id, amount, transaction_type, category, description, party, transaction_date, deleted_at FROM transactions WHERE user_id = $1 AND deleted_at IS NULL
 `
 
 func (q *Queries) GetUserTransactions(ctx context.Context, userID uuid.UUID) ([]Transaction, error) {
@@ -108,7 +139,7 @@ func (q *Queries) GetUserTransactions(ctx context.Context, userID uuid.UUID) ([]
 }
 
 const getUserTransactionsForPeriod = `-- name: GetUserTransactionsForPeriod :many
-SELECT id, created_at, updated_at, user_id, amount, transaction_type, category, description, party, transaction_date, deleted_at FROM transactions WHERE user_id = $1 and transaction_date <= $2 and transaction_date >= $3
+SELECT id, created_at, updated_at, user_id, amount, transaction_type, category, description, party, transaction_date, deleted_at FROM transactions WHERE user_id = $1 AND deleted_at IS NULL and transaction_date <= $2 and transaction_date >= $3
 `
 
 type GetUserTransactionsForPeriodParams struct {
