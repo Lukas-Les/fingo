@@ -2,6 +2,10 @@
 
 Finance tracking app for learning Go.
 
+* **Templating:** [Templ](https://templ.guide/) – Type-safe HTML components rendered directly in Go.
+* **Database Migrations:** [Goose](https://github.com/pressly/goose) – Reliable, version-controlled schema management.
+* **Database Access:** [sqlc](https://sqlc.dev/) – Generates type-safe, idiomatic Go code from raw SQL queries.
+
 
 ## Database migration
 
@@ -33,6 +37,9 @@ sqlc generate
 ```
 and you new query will be traslated to Go and put at internal/database module.
 
+## Templ
+
+This project uses Templ for html templating. Run `templ generate` after updating .templ files.
 
 ## Tests debuging
 
