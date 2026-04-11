@@ -106,3 +106,48 @@ func (q *Queries) GetUserTransactions(ctx context.Context, userID uuid.UUID) ([]
 	}
 	return items, nil
 }
+
+const getUserTransactionsForPeriod = `-- name: GetUserTransactionsForPeriod :many
+SELECT id, created_at, updated_at, user_id, amount, transaction_type, category, description, party, transaction_date, deleted_at FROM transactions WHERE user_id = $1 and transaction_date <= $2 and transaction_date >= $3
+`
+
+type GetUserTransactionsForPeriodParams struct {
+	UserID            uuid.UUID
+	TransactionDate   time.Time
+	TransactionDate_2 time.Time
+}
+
+func (q *Queries) GetUserTransactionsForPeriod(ctx context.Context, arg GetUserTransactionsForPeriodParams) ([]Transaction, error) {
+	rows, err := q.db.QueryContext(ctx, getUserTransactionsForPeriod, arg.UserID, arg.TransactionDate, arg.TransactionDate_2)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Transaction
+	for rows.Next() {
+		var i Transaction
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.UserID,
+			&i.Amount,
+			&i.TransactionType,
+			&i.Category,
+			&i.Description,
+			&i.Party,
+			&i.TransactionDate,
+			&i.DeletedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}

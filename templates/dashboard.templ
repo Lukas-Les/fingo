@@ -9,7 +9,7 @@ func transactionClass(t database.TransactionTypeEnum) string {
 	return "stat-value stat-expense"
 }
 
-templ Dashboard(csrfToken, email, balance string, transactions []database.Transaction) {
+templ Dashboard(csrfToken, email, balance, sumIncome, sumExpense string, transactions []database.Transaction) {
 	@Layout("Fingo | Dashboard") {
 		<div class="dashboard-wrapper">
 			<header class="dashboard-header">
@@ -32,11 +32,11 @@ templ Dashboard(csrfToken, email, balance string, transactions []database.Transa
 						<section class="stats-grid">
 							<div class="stat-card">
 								<p class="stat-label">Income</p>
-								<p class="stat-value stat-income">0.00 €</p>
+								<p class="stat-value stat-income">{ sumIncome } €</p>
 							</div>
 							<div class="stat-card">
 								<p class="stat-label">Expenses</p>
-								<p class="stat-value stat-expense">€0.00 €</p>
+								<p class="stat-value stat-expense">{ sumExpense } €</p>
 							</div>
 						</section>
 						<section class="transactions-section">

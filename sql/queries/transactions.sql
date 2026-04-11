@@ -16,3 +16,6 @@ RETURNING *;
 
 -- name: GetUserTransactions :many
 SELECT * FROM transactions WHERE user_id = $1;
+
+-- name: GetUserTransactionsForPeriod :many
+SELECT * FROM transactions WHERE user_id = $1 and transaction_date <= $2 and transaction_date >= $3;
